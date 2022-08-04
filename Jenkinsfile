@@ -68,19 +68,19 @@ pipeline {
                 node('staging-node') {
                     checkout(checkoutVar)
                     script {
-                        // def newBranch = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%H'").trim()
-                        // checkoutVar.branches = [[name: newBranch]]
+                        def newBranch = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%H'").trim()
+                        checkoutVar.branches = [[name: newBranch]]
 
-                        // def buildTimer = new org.deploy.Timing()
-                        // echo 'Building build-clari-dionysus container'
-                        // sh 'make build-clari-dionysus'
-                        // echo 'Tagging and pushing build-clari-dionysus container'
-                        // sh 'make docker-push-commit-build-clari-dionysus'
-                        // sh 'make docker-tag-branch-build-clari-dionysus'
-                        // sh 'make docker-push-branch-build-clari-dionysus'
-                        // buildTimer.Finish()
-                        // sh("echo ${buildTimer.Result()/1000} | dogcat jenkins.dionysus_${deployEnv}_build.duration g")
-                         echo "hello from an ec2-fleet-plugin node"
+                        def buildTimer = new org.deploy.Timing()
+                        echo 'Building build-clari-dionysus container'
+                        sh 'make build-clari-dionysus'
+                        echo 'Tagging and pushing build-clari-dionysus container'
+                        sh 'make docker-push-commit-build-clari-dionysus'
+                        sh 'make docker-tag-branch-build-clari-dionysus'
+                        sh 'make docker-push-branch-build-clari-dionysus'
+                        buildTimer.Finish()
+                        sh("echo ${buildTimer.Result()/1000} | dogcat jenkins.dionysus_${deployEnv}_build.duration g")
+                        //echo "hello from an ec2-fleet-plugin node"
                     }
                 }
                 milestone(ordinal: 100, label: 'build')
