@@ -87,94 +87,94 @@ pipeline {
             }
         }
 
-        // stage("Build Release Candidate") {
-        //     steps {
-        //         script {
-        //             node ('staging-node') {
-        //                 checkout(checkoutVar)
-        //                 try {
-        //                     echo 'Pulling assets from build-clari-dionysus'
-        //                     sh 'make output-dionysus-files'
-        //                     echo 'Creating clari-dionysus container'
-        //                     sh 'make clari-dionysus'
-        //                     echo 'Tagging and pushing clari-dionysus container'
-        //                     sh 'make docker-push-commit-clari-dionysus'
-        //                 } finally {
-        //                     dir('build') {
-        //                         deleteDir()
-        //                     }
-        //                 }
+        stage("Build Release Candidate") {
+            steps {
+                script {
+                    node ('staging-node') {
+                        checkout(checkoutVar)
+                        try {
+                            echo 'Pulling assets from build-clari-dionysus'
+                            sh 'make output-dionysus-files'
+                            echo 'Creating clari-dionysus container'
+                            sh 'make clari-dionysus'
+                            echo 'Tagging and pushing clari-dionysus container'
+                            sh 'make docker-push-commit-clari-dionysus'
+                        } finally {
+                            dir('build') {
+                                deleteDir()
+                            }
+                        }
 
-        //                 if (currentBuild.result == 'FAILURE') {
-        //                     error 'Build marked as FAILURE, exiting!'
-        //                 }
-        //             }
+                        if (currentBuild.result == 'FAILURE') {
+                            error 'Build marked as FAILURE, exiting!'
+                        }
+                    }
 
-        //             milestone(ordinal: 200, label: 'Build Release Candidate')
+                    milestone(ordinal: 200, label: 'Build Release Candidate')
 
-        //             if (deployEnv == 'production' && fixedClariDeployBranch ==~ /(production-rc\d+|production-release-\d+-\d{2}-\d{2})/) {
-        //                 println "should we deploy ${fixedClariDeployBranch}?"
-        //                 input message: "Does ${fixedClariDeployBranch} look good?"
-        //             } else {
-        //                 println "automatically deploying ${fixedClariDeployBranch}"
-        //             }
-        //             milestone(ordinal: 201, label: 'Deploy Release Candidate')
-        //         }
-        //     }
-        // }
-        // stage("Release -live container") {
-        //     steps {
-        //         script {
-        //             lock(resource: "Release - ${deployEnv} - ${fixedClariDeployBranch} - Dionysus Release", inversePrecedence: true) {
-        //                 node ('staging-node') {
-        //                     checkout(checkoutVar)
-        //                     echo "Tagging and pushing clari-dionysus release container for ${fixedClariDeployBranch}"
-        //                     sh 'make docker-tag-branch-clari-dionysus'
-        //                     sh 'make docker-push-branch-clari-dionysus'
+                    if (deployEnv == 'production' && fixedClariDeployBranch ==~ /(production-rc\d+|production-release-\d+-\d{2}-\d{2})/) {
+                        println "should we deploy ${fixedClariDeployBranch}?"
+                        input message: "Does ${fixedClariDeployBranch} look good?"
+                    } else {
+                        println "automatically deploying ${fixedClariDeployBranch}"
+                    }
+                    milestone(ordinal: 201, label: 'Deploy Release Candidate')
+                }
+            }
+        }
+        stage("Release -live container") {
+            steps {
+                script {
+                    lock(resource: "Release - ${deployEnv} - ${fixedClariDeployBranch} - Dionysus Release", inversePrecedence: true) {
+                        node ('staging-node') {
+                            checkout(checkoutVar)
+                            echo "Tagging and pushing clari-dionysus release container for ${fixedClariDeployBranch}"
+                            sh 'make docker-tag-branch-clari-dionysus'
+                            sh 'make docker-push-branch-clari-dionysus'
                             
-        //                     if (deployEnv != 'sandbox') {
-        //                         echo 'Tagging last stable release to facilitate rollbacks'
-        //                         sh "git tag ${deployEnv}-last-stable ${gitTag} -f"
-        //                         sshagent(['clarius-deploy-key']) {
-        //                             sh "git push origin ${deployEnv}-last-stable :${gitTag} -f"
-        //                         }
+                            if (deployEnv != 'sandbox') {
+                                echo 'Tagging last stable release to facilitate rollbacks'
+                                sh "git tag ${deployEnv}-last-stable ${gitTag} -f"
+                                sshagent(['clarius-deploy-key']) {
+                                    sh "git push origin ${deployEnv}-last-stable :${gitTag} -f"
+                                }
 
-        //                         sh 'make docker-tag-last-release-clari-dionysus'
-        //                         sh 'make docker-push-last-release-clari-dionysus'
-        //                     }
+                                sh 'make docker-tag-last-release-clari-dionysus'
+                                sh 'make docker-push-last-release-clari-dionysus'
+                            }
                             
-        //                     echo 'Updating Live-Release Tags'
-        //                     sh "git tag ${gitTag} -f"
-        //                     sshagent(['clarius-deploy-key']) {
-        //                         sh "git push origin ${gitTag} -f"
-        //                     }
+                            echo 'Updating Live-Release Tags'
+                            sh "git tag ${gitTag} -f"
+                            sshagent(['clarius-deploy-key']) {
+                                sh "git push origin ${gitTag} -f"
+                            }
                             
-        //                     sh 'make docker-tag-gittag-clari-dionysus'
-        //                     sh 'make docker-push-tag-clari-dionysus'
-        //                     echo 'Triggering Release Process'
-        //                     sh 'sleep 5'
-        //                 }
-        //             }
-        //             milestone(ordinal: 300, label: 'Release clari-dionysus -live container')
-        //         }
-        //     }
-        // }
-        // stage("Trigger Deploy Pipeline!") {
-        //     steps {
-        //         script {
-        //             lock(resource: "Trigger - ${deployEnv} - ${fixedClariDeployBranch} - Dionysus Deploy", inversePrecedence: true) {
-        //                 if (deployEnv == 'sandbox') {
-        //                     build job: "clari-sandbox-${sandboxName}-deploy", parameters: [
-        //                         string(name: 'sandboxName', value: "${sandboxName}"),
-        //                         string(name: 'serviceName', value: "dionysus")
-        //                     ]
-        //                 } else if (deployEnv != 'development') {
-        //                     build job: "clari-dionysus-${deployEnv}-deploy", parameters: [string(name: 'deployEnv', value: "${deployEnv}")]
-        //                 }
-        //                 milestone(ordinal: 400, label: 'Deploy -live container')
-        //             }
-        //         }
-        //     }
-        // }
+                            sh 'make docker-tag-gittag-clari-dionysus'
+                            sh 'make docker-push-tag-clari-dionysus'
+                            echo 'Triggering Release Process'
+                            sh 'sleep 5'
+                        }
+                    }
+                    milestone(ordinal: 300, label: 'Release clari-dionysus -live container')
+                }
+            }
+        }
+        stage("Trigger Deploy Pipeline!") {
+            steps {
+                script {
+                    lock(resource: "Trigger - ${deployEnv} - ${fixedClariDeployBranch} - Dionysus Deploy", inversePrecedence: true) {
+                        if (deployEnv == 'sandbox') {
+                            build job: "clari-sandbox-${sandboxName}-deploy", parameters: [
+                                string(name: 'sandboxName', value: "${sandboxName}"),
+                                string(name: 'serviceName', value: "dionysus")
+                            ]
+                        } else if (deployEnv != 'development') {
+                            build job: "clari-dionysus-${deployEnv}-deploy", parameters: [string(name: 'deployEnv', value: "${deployEnv}")]
+                        }
+                        milestone(ordinal: 400, label: 'Deploy -live container')
+                    }
+                }
+            }
+        }
     }
 }
