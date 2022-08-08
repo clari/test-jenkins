@@ -1,7 +1,7 @@
 def deployEnv = 'development'
 def gitTag = 'development-live'
 def fixedClariDeployBranch = ''
-def jenkinsTimeout = "${jenkinsTimeout}"
+def jenkinsTimeout = "60}"
 def modules = []
 def testPartitions = [:]
 def gitCommit = 'defaultGitCommit'
@@ -12,7 +12,6 @@ def clariDeployEnv = 'steelix'
 def clariDeployBranch = 'develop'
 def sandboxName = 'default'
 def jdkVersion = 'aws-jdk'
-def jenkinsTimeout = '60'
 
 def needToBumpMinorVersion = {
     def releaseLiveTags = []
