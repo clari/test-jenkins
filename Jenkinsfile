@@ -212,7 +212,7 @@ pipeline {
         // tests stage
         stage("Run Tests") {
             when {
-                expression { continueBuild }
+                expression { true }
             }
             steps {
                 script {
