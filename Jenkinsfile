@@ -106,7 +106,7 @@ def checkoutVar = [
         ]]
 ]
 
-def continueBuild = false
+def continueBuild = true
 
 pipeline {
     agent {
@@ -322,7 +322,7 @@ pipeline {
                     expression { continueBuild }
                 }
             }
-            stages {:q
+            stages {
                 // Publish Jars and Docker containers in parallel
                 stage("Publish Jars") {
                     when {
