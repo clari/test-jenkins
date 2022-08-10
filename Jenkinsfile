@@ -106,7 +106,7 @@ def checkoutVar = [
         ]]
 ]
 
-def continueBuild = false
+def continueBuild = true
 
 pipeline {
     agent {
@@ -212,7 +212,7 @@ pipeline {
         // tests stage
         stage("Run Tests") {
             when {
-                expression { true }
+                expression { continueBuild }
             }
             steps {
                 script {
