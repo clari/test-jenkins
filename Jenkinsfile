@@ -251,7 +251,10 @@ pipeline {
                                             try {
                                                 if( fileExists("build/${module_inside}/jacoco/test.exec") ){
                                                     sh "pwd"
+                                                    sh "whoami"
                                                     sh "ls -al ."
+                                                    sh "ls -al ./build/activity"
+                                                    sh "ls -al ./build/activity/jacoco"
                                                     sh "ls -al ../."
                                                     sh "mv build/${module_inside}/jacoco/test.exec build/${module_inside}/jacoco/${partition_id}.exec"
                                                     sh "ls build/*/jacoco/*.exec || true"
@@ -319,7 +322,7 @@ pipeline {
                     expression { continueBuild }
                 }
             }
-            stages {
+            stages {:q
                 // Publish Jars and Docker containers in parallel
                 stage("Publish Jars") {
                     when {
