@@ -106,7 +106,7 @@ def checkoutVar = [
         ]]
 ]
 
-def continueBuild = true
+def continueBuild = false
 
 pipeline {
     agent {
