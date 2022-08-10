@@ -133,7 +133,7 @@ pipeline {
                 script {
                     // 1. Checkout base branch
                     checkout(checkoutVar)
-                    JENKINS_USER = sh (script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true).trim()
+                    JENKINS_USER = sh (script: 'who', returnStdout: true).trim()
                     echo "Jenkins user is  ${JENKINS_USER}"
                 }
             }
