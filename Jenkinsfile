@@ -228,73 +228,73 @@ pipeline {
                     }
                     parallel builds
 
-                    for (def module in modules.sort()) {
-                        if (counter1 > 0) {
-                            break
-                        }
-                        counter1++
-                        def node_name = 'staging-node'
-                        def module_inside = "${module}"
+                    // for (def module in modules.sort()) {
+                    //     if (counter1 > 0) {
+                    //         break
+                    //     }
+                    //     counter1++
+                    //     def node_name = 'staging-node'
+                    //     def module_inside = "${module}"
 
-                        def n = 0;
-                        for( def partition in testPartitions[module_inside] ) {
-                            if (n > 0){
-                                break
-                            }
-                            n++
-                            def partition_inside = "${partition}"
-                            def partition_id = "${module_inside}-${n}"
-                            def partition_number = "${n}"
+                    //     def n = 0;
+                    //     for( def partition in testPartitions[module_inside] ) {
+                    //         if (n > 0){
+                    //             break
+                    //         }
+                    //         n++
+                    //         def partition_inside = "${partition}"
+                    //         def partition_id = "${module_inside}-${n}"
+                    //         def partition_number = "${n}"
 
-                            builds["${partition_id}"] = {
-                                node(node_name) {
-                                    stage("Test ${partition_id}") {
-                                        checkout(checkoutVar)
-                                        echo("Testing module ${partition_id}")
-                                        def timer = new org.deploy.Timing()
-                                        try {
-                                            cleanJunit()
-                                            cleanCoverage()
-                                            sh("PARTITION=${partition_number} GRADLE_ARGS='${partition_inside}' make jenkins-test-${module_inside}")
-                                        } finally {
-                                            junit allowEmptyResults: true, testResults: "**/test-results/test/*.xml"
-                                            try {
-                                                if( fileExists("build/${module_inside}/jacoco/test.exec") ){
-                                                    sh "pwd"
-                                                    sh "whoami"
-                                                    sh "ls -al ."
-                                                    sh "ls -al ./build/activity"
-                                                    sh "ls -al ./build/activity/jacoco"
-                                                    sh "ls -al ../."
-                                                    sh "sudo chown -R ubuntu:ubuntu ./build/"
-                                                    sh "mv build/${module_inside}/jacoco/test.exec build/${module_inside}/jacoco/${partition_id}.exec"
-                                                    sh "ls build/*/jacoco/*.exec || true"
-                                                    def stashName = "jacoco-${partition_id}"
-                                                    stash name: stashName, includes: "build/${module_inside}/jacoco/*.exec"
-                                                    coverageStashes.add(stashName)
-                                                }
-                                            } catch (err) {
-                                                echo "Caught: ${err}"
-                                            }
-                                            try{
-                                                sh("PARTITION=${partition_number} make jenkins-cleanup-test-${module_inside}")
-                                                dir('build') {
-                                                    deleteDir()
-                                                }
-                                                sh("echo 0 | dogcat jenkins.core_build.module.cleanup_failure c module:${partition_id}")
-                                            } catch(err) {
-                                                echo "${err}"
-                                                sh("echo 1 | dogcat jenkins.core_build.module.cleanup_failure c module:${partition_id}")
-                                            }
-                                            timer.Finish()
-                                            sh("echo ${timer.Result() / 1000} | dogcat jenkins.core_build.module.duration g job:clarius-core-${deployEnv},module:${partition_id}")
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    parallel builds
+                    //         builds["${partition_id}"] = {
+                    //             node(node_name) {
+                    //                 stage("Test ${partition_id}") {
+                    //                     checkout(checkoutVar)
+                    //                     echo("Testing module ${partition_id}")
+                    //                     def timer = new org.deploy.Timing()
+                    //                     try {
+                    //                         cleanJunit()
+                    //                         cleanCoverage()
+                    //                         sh("PARTITION=${partition_number} GRADLE_ARGS='${partition_inside}' make jenkins-test-${module_inside}")
+                    //                     } finally {
+                    //                         junit allowEmptyResults: true, testResults: "**/test-results/test/*.xml"
+                    //                         try {
+                    //                             if( fileExists("build/${module_inside}/jacoco/test.exec") ){
+                    //                                 sh "pwd"
+                    //                                 sh "whoami"
+                    //                                 sh "ls -al ."
+                    //                                 sh "ls -al ./build/activity"
+                    //                                 sh "ls -al ./build/activity/jacoco"
+                    //                                 sh "ls -al ../."
+                    //                                 sh "sudo chown -R ubuntu:ubuntu ./build/"
+                    //                                 sh "mv build/${module_inside}/jacoco/test.exec build/${module_inside}/jacoco/${partition_id}.exec"
+                    //                                 sh "ls build/*/jacoco/*.exec || true"
+                    //                                 def stashName = "jacoco-${partition_id}"
+                    //                                 stash name: stashName, includes: "build/${module_inside}/jacoco/*.exec"
+                    //                                 coverageStashes.add(stashName)
+                    //                             }
+                    //                         } catch (err) {
+                    //                             echo "Caught: ${err}"
+                    //                         }
+                    //                         try{
+                    //                             sh("PARTITION=${partition_number} make jenkins-cleanup-test-${module_inside}")
+                    //                             dir('build') {
+                    //                                 deleteDir()
+                    //                             }
+                    //                             sh("echo 0 | dogcat jenkins.core_build.module.cleanup_failure c module:${partition_id}")
+                    //                         } catch(err) {
+                    //                             echo "${err}"
+                    //                             sh("echo 1 | dogcat jenkins.core_build.module.cleanup_failure c module:${partition_id}")
+                    //                         }
+                    //                         timer.Finish()
+                    //                         sh("echo ${timer.Result() / 1000} | dogcat jenkins.core_build.module.duration g job:clarius-core-${deployEnv},module:${partition_id}")
+                    //                     }
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+                    // }
+                    // parallel builds
                 }
 
                 // milestone(ordinal: 200, label: 'Tests')
@@ -452,4 +452,5 @@ pipeline {
         //     }
         // }
     }
+}
 }
