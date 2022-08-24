@@ -127,75 +127,30 @@ pipeline {
         GIT_ENV = "${deployEnv}"
     }
 
-    // stages {
-    //     stage('Run Tests') {
-    //         parallel {
-    //             stage('Test On Windows') {
-    //                 agent {
-    //                     label "staging-node"
-    //                 }
-    //                 steps {
-    //                     echo "Hello"
-    //                     sh "sleep 3600"
-    //                 }
-                    
-    //             }
-    //             stage('Test On Linux') {
-    //                 agent {
-    //                     label "staging-node"
-    //                 }
-    //                 steps {
-    //                     echo "Hello"
-    //                     sh "sleep 3600"
-    //                 }
-                    
-    //             }
-    //             stage('Test On MacOS') {
-    //                 agent {
-    //                     label "staging-node"
-    //                 }
-    //                 steps {
-    //                     echo "Hello"
-    //                     sh "sleep 3600"
-    //                 }
-                    
-    //             }
-    //             stage('Test On Android') {
-    //                 agent {
-    //                     label "staging-node"
-    //                 }
-    //                 steps {
-    //                     echo "Hello"
-    //                     sh "sleep 3600"
-    //                 }
-                    
-    //             }
-    //             stage('Test On iOS') {
-    //                 agent {
-    //                     label "staging-node"
-    //                 }
-    //                 steps {
-    //                     echo "Hello"
-    //                     sh "sleep 3600"
-    //                 }
-                    
-    //             }
-    //         }
-    //     }
-    // }
-
     stages {
         stage('Run Tests') {
-            steps {
-                script {
-                    def builds = [:]
-                    def counter1 = 0
-
-                    for(int i = 0; i < 5; i++){
-                        build job: 'test-jenkins-ec2'
+            parallel {
+                stage('Test On Windows') {
+                    agent {
+                        label "staging-node"
                     }
-
+                    steps {
+                        echo "Hello"
+                        sh "sleep 3600"
+                    }
+                    
                 }
+                stage('Test On Linux') {
+                    agent {
+                        label "staging-node"
+                    }
+                    steps {
+                        echo "Hello"
+                        sh "sleep 3600"
+                    }
+                    
+                }
+         
             }
         }
     }
