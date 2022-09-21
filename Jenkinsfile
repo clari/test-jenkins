@@ -312,6 +312,7 @@ pipeline {
 
                     jacoco classPattern: "classes", sourcePattern: "**/src/main/java", execPattern: "build/*/jacoco/*.exec", runAlways: true
                 }
+         
             }
         }
 
